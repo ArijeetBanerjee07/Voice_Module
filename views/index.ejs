@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sarvam AI & Gemini | Voice Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.4);
+            --secondary: #a855f7;
+            --bg-gradient: radial-gradient(circle at top right, #1e1b4b, #0f172a);
+            --glass-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --error: #f43f5e;
+            --success: #10b981;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Background animated blobs */
+        .blob {
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: var(--primary-glow);
+            filter: blur(100px);
+            border-radius: 50%;
+            z-index: -1;
+            animation: move 25s infinite alternate;
+        }
+
+        .blob-1 {
+            top: -100px;
+            left: -100px;
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .blob-2 {
+            bottom: -100px;
+            right: -100px;
+            background: rgba(168, 85, 247, 0.2);
+        }
+
+        @keyframes move {
+            0% {
+                transform: translate(0, 0) scale(1);
+            }
+
+            100% {
+                transform: translate(150px, 150px) scale(1.2);
+            }
+        }
+
+        .container {
+            background: var(--glass-bg);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid var(--glass-border);
+            padding: 40px;
+            border-radius: 32px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.7);
+            position: relative;
+        }
+
+        h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.01em;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 15px;
+            margin-bottom: 32px;
+        }
+
+        .selection-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 32px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .selection-group label {
+            font-size: 13px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        select {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            color: white;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-family: inherit;
+            cursor: pointer;
+            outline: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        select:hover {
+            background-color: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        select option {
+            background-color: #0f172a;
+            color: white;
+            padding: 12px;
+        }
+
+        .controls {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 40px;
+        }
+
+        .btn {
+            position: relative;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 4px 6px -1px var(--primary-glow);
+        }
+
+        .btn:hover {
+            background: #4f46e5;
+            transform: translateY(-3px);
+            box-shadow: 0 20px 25px -5px var(--primary-glow);
+        }
+
+        .btn:active {
+            transform: translateY(-1px);
+        }
+
+        .btn-record.recording {
+            background: var(--error);
+            box-shadow: 0 0 30px rgba(244, 63, 94, 0.4);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.02);
+            }
+
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            color: var(--text-main);
+            box-shadow: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            border: 1px solid var(--glass-border);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            transition: 0.3s;
+        }
+
+        .status-dot.active {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+
+        .status-dot.recording {
+            background: var(--error);
+            box-shadow: 0 0 10px var(--error);
+        }
+
+        .chat-layout {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-top: 32px;
+            text-align: left;
+        }
+
+        .bubble {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            padding: 20px;
+            border-radius: 20px;
+            position: relative;
+        }
+
+        .bubble-user {
+            border-left: 4px solid var(--primary);
+        }
+
+        .bubble-ai {
+            border-left: 4px solid var(--secondary);
+            background: rgba(168, 85, 247, 0.05);
+        }
+
+        .bubble-header {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .bubble-text {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #e2e8f0;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.3s;
+        }
+
+        .loading-overlay.visible {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        #audio-waves {
+            display: none;
+            height: 20px;
+            align-items: center;
+            gap: 2px;
+            margin-top: 10px;
+        }
+
+        .wave {
+            width: 3px;
+            height: 100%;
+            background: var(--primary);
+            border-radius: 2px;
+            animation: wave-anim 0.5s infinite alternate;
+        }
+
+        .wave:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .wave:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .wave:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes wave-anim {
+            from {
+                height: 10%;
+            }
+
+            to {
+                height: 100%;
+            }
+        }
+
+        #file-input {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+
+    <div class="container">
+        <div id="loader" class="loading-overlay">
+            <div class="spinner"></div>
+            <p style="margin-top: 20px; font-weight: 600;">Consulting AI Doctor...</p>
+        </div>
+
+        <div class="status-badge">
+            <div id="status-dot" class="status-dot"></div>
+            <span id="status-text">AI Doctor Online</span>
+        </div>
+
+        <h1>Medical Voice AI</h1>
+        <p class="subtitle">Quick Medical Advice & Home Remedies</p>
+
+        <div class="selection-group">
+            <label for="speaker">Doctor's Voice:</label>
+            <select id="speaker">
+                <option value="shubh">Shubh (Male)</option>
+                <option value="shreya">Shreya (Female - Professional)</option>
+                <option value="ishita">Ishita (Female - Expressive)</option>
+                <option value="ritu">Ritu (Female)</option>
+                <option value="priya">Priya (Female)</option>
+                <option value="neha">Neha (Female)</option>
+                <option value="pooja">Pooja (Female)</option>
+                <option value="simran">Simran (Female)</option>
+                <option value="kavya">Kavya (Female)</option>
+                <option value="roopa">Roopa (Female)</option>
+                <option value="amelia">Amelia (Female - International)</option>
+                <option value="sophia">Sophia (Female - International)</option>
+                <option value="manan">Manan (Male - Calm)</option>
+            </select>
+        </div>
+
+        <div class="controls">
+            <button id="record-btn" class="btn btn-record">
+                <svg id="mic-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                    fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                    <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                    <line x1="12" x2="12" y1="19" y2="22" />
+                    <line x1="8" x2="16" y1="22" y2="22" />
+                </svg>
+                <span id="btn-text">Push to Talk</span>
+            </button>
+
+            <div style="margin: 8px 0; color: #475569; font-size: 13px; font-weight: 700;">OR</div>
+
+            <input type="file" id="file-input" accept="audio/*">
+            <button id="upload-btn" class="btn btn-secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="17 8 12 3 7 8" />
+                    <line x1="12" x2="12" y1="3" y2="15" />
+                </svg>
+                <span>Upload Audio</span>
+            </button>
+        </div>
+
+        <div class="chat-layout">
+            <div id="user-section" class="bubble bubble-user" style="display: none;">
+                <div class="bubble-header">Patient Transcript</div>
+                <div id="user-text" class="bubble-text">...</div>
+            </div>
+
+            <div id="ai-section" class="bubble bubble-ai" style="display: none;">
+                <div class="bubble-header">Doctor's Advice</div>
+                <div id="ai-text" class="bubble-text">...</div>
+                <div id="audio-waves">
+                    <div class="wave"></div>
+                    <div class="wave"></div>
+                    <div class="wave"></div>
+                    <div class="wave"></div>
+                    <span style="font-size: 10px; margin-left:8px; color:var(--secondary)">Speaking...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const recordBtn = document.getElementById('record-btn');
+        const uploadBtn = document.getElementById('upload-btn');
+        const fileInput = document.getElementById('file-input');
+        const statusText = document.getElementById('status-text');
+        const statusDot = document.getElementById('status-dot');
+        const loader = document.getElementById('loader');
+        const speakerSelect = document.getElementById('speaker');
+        const btnText = document.getElementById('btn-text');
+
+        const userSec = document.getElementById('user-section');
+        const aiSec = document.getElementById('ai-section');
+        const userText = document.getElementById('user-text');
+        const aiText = document.getElementById('ai-text');
+        const waves = document.getElementById('audio-waves');
+
+        let mediaRecorder;
+        let audioChunks = [];
+        let isRecording = false;
+
+        recordBtn.addEventListener('click', async () => {
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = (event) => audioChunks.push(event.data);
+                    mediaRecorder.onstop = async () => {
+                        const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
+                        await sendAudioToServer(audioBlob);
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    recordBtn.classList.add('recording');
+                    btnText.innerText = 'Stop';
+                    statusText.innerText = 'Listening...';
+                    statusDot.className = 'status-dot active recording';
+                } catch (err) {
+                    alert('Microphone access denied.');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                recordBtn.classList.remove('recording');
+                btnText.innerText = 'Push to Talk';
+                statusText.innerText = 'Processing...';
+                statusDot.className = 'status-dot active';
+            }
+        });
+
+        uploadBtn.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', async () => {
+            if (fileInput.files.length > 0) await sendAudioToServer(fileInput.files[0]);
+        });
+
+        async function sendAudioToServer(audioFile) {
+            const formData = new FormData();
+            formData.append('audio', audioFile);
+            formData.append('speaker', speakerSelect.value);
+
+            loader.classList.add('visible');
+            statusText.innerText = 'Processing Voice...';
+
+            try {
+                const response = await fetch('/voice-chat', { method: 'POST', body: formData });
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Show user text
+                    userSec.style.display = 'block';
+                    userText.innerText = data.transcript;
+
+                    // Show AI text
+                    aiSec.style.display = 'block';
+                    aiText.innerText = data.aiResponse;
+
+                    // Play Audio
+                    if (data.audio) {
+                        playAudio(data.audio);
+                    }
+                    statusText.innerText = 'Complete';
+                    statusDot.className = 'status-dot active';
+                } else {
+                    alert('Error: ' + data.details);
+                    statusText.innerText = 'Error';
+                    statusDot.className = 'status-dot';
+                }
+            } catch (err) {
+                console.error(err);
+                statusText.innerText = 'Network Error';
+            } finally {
+                loader.classList.remove('visible');
+            }
+        }
+
+        function playAudio(base64) {
+            const audio = new Audio("data:audio/wav;base64," + base64);
+            waves.style.display = 'flex';
+            audio.play();
+            audio.onended = () => {
+                waves.style.display = 'none';
+            };
+        }
+    </script>
+</body>
+
+</html>
